@@ -39,16 +39,27 @@ app.get("/show/", function (req, res) {
 });
 app.get("/info/", function (req, res) {
   const id = req.query.id;
-  const index = fileTab.findIndex((file) => file.id == id);
-  const el = fileTab[index];
-  res.render("info.hbs", {
-    id: el.id,
-    name: el.name,
-    path: el.path,
-    size: el.size,
-    type: el.type,
-    savedate: el.savedate,
-  });
+  if (!id)
+    res.render("info.hbs", {
+      id: "nie podano",
+      name: "nie podano",
+      path: "nie podano",
+      size: "nie podano",
+      type: "nie podano",
+      savedate: "nie podano",
+    });
+  else {
+    const index = fileTab.findIndex((file) => file.id == id);
+    const el = fileTab[index];
+    res.render("info.hbs", {
+      id: el.id,
+      name: el.name,
+      path: el.path,
+      size: el.size,
+      type: el.type,
+      savedate: el.savedate,
+    });
+  }
 });
 app.get("/download/", function (req, res) {
   const id = req.query.id;
