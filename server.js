@@ -21,7 +21,7 @@ app.engine(
 );
 app.set("view engine", "hbs");
 let numOfFiles = 0;
-const fileTab = [];
+let fileTab = [];
 
 app.get("/", function (req, res) {
   res.render("upload.hbs");
@@ -59,6 +59,10 @@ app.get("/delete/", function (req, res) {
   const id = req.query.id;
   const index = fileTab.findIndex((file) => file.id == id);
   fileTab.splice(index, 1);
+  res.redirect("/filemanager");
+});
+app.get("/deleteAll", function (req, res) {
+  fileTab = [];
   res.redirect("/filemanager");
 });
 app.post("/handleUpload", function (req, res) {
