@@ -13,7 +13,11 @@ app.engine(
     defaultLayout: "main.hbs",
     helpers: {
       renderImg: (name) => {
-        const ext = name.split(".")[1];
+        let ext = name.split(".")[name.split(".").length - 1];
+        console.log(extensions.indexOf(ext), ext);
+        if (extensions.indexOf(ext.toLowerCase()) == -1) {
+          ext = "file";
+        }
         return `<img src="img/${ext}.png" alt="Rozszerzenie ${ext}"/>`;
       },
     },
@@ -22,7 +26,7 @@ app.engine(
 app.set("view engine", "hbs");
 let numOfFiles = 0;
 let fileTab = [];
-
+let extensions = ["png", "txt", "pdf", "mp4", "js", "jpg", "html"];
 app.get("/", function (req, res) {
   res.render("upload.hbs");
 });
@@ -80,7 +84,7 @@ app.post("/handleUpload", function (req, res) {
   let form = formidable({});
   form.keepExtensions = true;
   form.multiples = true;
-  form.uploadDir = __dirname + "/static/upload/"; // folder do zapisu zdjęcia
+  form.uploadDir = __dirname + "/static/upload/";
 
   form.parse(req, function (err, fields, files) {
     if (files.upload.length > 0) {
