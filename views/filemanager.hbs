@@ -1,35 +1,40 @@
 <div class="mainCont">
     <div class="sidePanel">
         <p>filemanager</p>
-        <a href="/deleteAll">USUŃ DANE O PLIKACH Z TABLICY</a>
-    </div>
-    <div class="centerPanel">
-        <table>
-            <tr>
-                <th>id</th>
-                <th>obraz</th>
-                <th>name</th>
-                <th>size</th>
-                <th>type</th>
-                <th>-</th>
-                <th>-</th>
-                <th>-</th>
-                <th>-</th>
-            </tr>
-            {{#each files}}
-            <tr>
-                <td>{{id}}</td>
-                <td>{{{renderImg name}}}</td>
-                <td>{{name}}</td>
-                <td>{{size}}</td>
-                <td>{{type}}</td>
-                <td><a href="/show/?id={{id}}">SHOW</a></td>
-                <td><a href="/info/?id={{id}}">INFO</a></td>
-                <td><a href="/download/?id={{id}}">DOWNLOAD</a></td>
-                <td><a href="/delete/?id={{id}}">DELETE</a></td>
-            </tr>
-            {{/each}}
-        </table>
+        <button class="sidePanelBtn" id="nowyFolder">nowy folder</button>
+        <button class="sidePanelBtn" id="nowyPlik">nowy plik tekstowy</button>
+        <div class="sidePanelForm">
+            <form enctype="multipart/form-data" method="POST" action="/handleUpload">
+                <input type="file" multiple required id="select" name="upload">
+                <button id="sub" type="submit">Upload</button>
+            </form>
+        </div>
 
     </div>
+    <div class="centerPanel">
+        <div id="navigation">home></div>
+        <div id="dataList"></div>
+    </div>
 </div>
+<dialog id="nowyFolderDialog">
+    <p>Nazwa folderu</p>
+    <form action="/addDir" method="get"> <input type="text" name="name">
+        <button type="submit">Dodaj</button>
+    </form>
+
+</dialog>
+<dialog id="nowyPlikDialog">
+    <p>Nazwa pliku</p>
+    <form action="/addFile" method="get"> <input type="text" name="name">
+        <button type="submit">Dodaj</button>
+    </form>
+
+</dialog>
+<script>
+    document.getElementById('nowyFolder').addEventListener('click', (e) => {
+        document.getElementById('nowyFolderDialog').showModal()
+    })
+    document.getElementById('nowyPlik').addEventListener('click', (e) => {
+        document.getElementById('nowyPlikDialog').showModal()
+    })
+</script>
