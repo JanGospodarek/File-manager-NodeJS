@@ -14,8 +14,10 @@ app.engine(
     helpers: {
       renderImg: (name) => {
         let ext = name.split(".")[name.split(".").length - 1];
-        console.log(extensions.indexOf(ext), ext);
-        if (extensions.indexOf(ext.toLowerCase()) == -1) {
+        console.log(ext);
+        if (ext === name) {
+          ext = "folder";
+        } else if (extensions.indexOf(ext.toLowerCase()) == -1) {
           ext = "file";
         }
         return `<img src="img/${ext}.png" alt="Rozszerzenie ${ext}"/>`;
@@ -23,27 +25,81 @@ app.engine(
     },
   })
 );
-console.log(path);
 app.set("view engine", "hbs");
+
 let numOfFiles = 0;
 let fileTab = [];
 let extensions = ["png", "txt", "pdf", "mp4", "js", "jpg", "html"];
-app.get("/", function (req, res) {
-  res.redirect("/filemanager");
-});
-fs.readdir(__dirname + '/static/upload', (err, files) => {
-  console.log(files);
-  files.forEach(element => {
-    fileTab.push({ name: element })
+
+function readFiles() {
+  fileTab = [];
+  fs.readdir(__dirname + "/static/upload", (err, files) => {
+    files.forEach((element) => {
+      let ext = element.split(".")[element.split(".").length - 1];
+      fileTab.push({ name: element, ext: ext });
+    });
   });
-})
+  console.log(fileTab);
+}
+readFiles();
+
 // app.get("/upload", function (req, res) {
 //   res.render("upload.hbs");
 // });
+
+app.get("/", function (req, res) {
+  res.redirect("/filemanager");
+});
+
 app.get("/filemanager", function (req, res) {
   res.render("filemanager.hbs", { files: fileTab });
 });
+app.get("/addDir", function (req, res) {
+  const name = req.query.name;
+  fs.mkdir(path.join(__dirname, "/static/upload/", name), (err) => {
+    if (err) throw err;
+    console.log("jest");
+    readFiles();
+    res.redirect("/filemanager");
+  });
+});
+app.get("/addFile", function (req, res) {
+  const name = req.query.name;
 
+  fs.writeFile(path.join(__dirname, "/static/upload", name), "", (err) => {
+    if (err) throw err;
+    readFiles();
+    res.redirect("/filemanager");
+  });
+});
+app.post("/handleUpload", function (req, res) {
+  var form = new formidable.IncomingForm();
+  // form.keepFilenames = true;
+
+  form.keepExtensions = true;
+  form.multiples = true;
+  form.uploadDir = __dirname + "/static/upload";
+
+  form.on("file", function (field, file) {
+    //rename the incoming file to the file's name
+
+    fs.rename(
+      file.path,
+      path.join(__dirname, "/static/upload/", file.name),
+      (err) => {
+        console.log(err);
+        readFiles();
+      }
+    );
+  });
+  form.parse(req, function () {
+    res.redirect("/filemanager");
+  });
+});
+
+app.listen(PORT, function () {
+  console.log("start serwera na porcie " + PORT);
+});
 // app.get("/show/", function (req, res) {
 //   const id = req.query.id;
 //   const index = fileTab.findIndex((file) => file.id == id);
@@ -88,38 +144,3 @@ app.get("/filemanager", function (req, res) {
 //   fileTab = [];
 //   res.redirect("/filemanager");
 // });
-app.post("/handleUpload", function (req, res) {
-  let form = formidable({});
-  form.keepExtensions = true;
-  form.multiples = true;
-  form.uploadDir = __dirname + "/static/upload/";
-
-  form.parse(req, function (err, fields, files) {
-    if (files.upload.length > 0) {
-      files.upload.forEach((file) => {
-        numOfFiles += 1;
-        fileTab.push({
-          id: numOfFiles,
-          path: file.path,
-          savedate: Math.round(new Date().getTime() / 1000),
-        });
-      });
-
-    } else {
-      numOfFiles += 1;
-
-      fileTab.push({
-        id: numOfFiles,
-        name: files.upload.name,
-        path: files.upload.path,
-        savedate: Math.round(new Date().getTime() / 1000),
-      });
-    }
-
-    res.render("filemanager.hbs", { files: fileTab });
-  });
-});
-
-app.listen(PORT, function () {
-  console.log("start serwera na porcie " + PORT);
-});

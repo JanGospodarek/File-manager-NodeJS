@@ -1,40 +1,46 @@
 <div class="mainCont">
-    <div class="sidePanel">
-        <p>filemanager</p>
-        <button class="sidePanelBtn" id="nowyFolder">nowy folder</button>
-        <button class="sidePanelBtn" id="nowyPlik">nowy plik tekstowy</button>
-        <div class="sidePanelForm">
-            <form enctype="multipart/form-data" method="POST" action="/handleUpload">
-                <input type="file" multiple required id="select" name="upload">
-                <button id="sub" type="submit">Upload</button>
-            </form>
-        </div>
+  <div class="sidePanel">
+    <p>filemanager</p>
+    <button class="sidePanelBtn" id="nowyFolder">nowy folder</button>
+    <button class="sidePanelBtn" id="nowyPlik">nowy plik tekstowy</button>
+    <div class="sidePanelForm">
+      <form enctype="multipart/form-data" method="POST" action="/handleUpload">
+        <input type="file" multiple required id="select" name="upload" />
+        <button id="sub" type="submit">Upload</button>
+      </form>
+    </div>
 
+  </div>
+  <div class="centerPanel">
+    <div id="navigation">home></div>
+    <div id="dataList">
+      {{#each files}}
+        <div class="fileItem">
+          {{{renderImg name}}}
+          <p> {{name}}</p>
+        </div>{{/each}}
     </div>
-    <div class="centerPanel">
-        <div id="navigation">home></div>
-        <div id="dataList"></div>
-    </div>
+  </div>
 </div>
 <dialog id="nowyFolderDialog">
-    <p>Nazwa folderu</p>
-    <form action="/addDir" method="get"> <input type="text" name="name">
-        <button type="submit">Dodaj</button>
-    </form>
+  <p>Nazwa folderu</p>
+  <form action="/addDir" method="get">
+    <input type="text" name="name" />
+    <button type="submit">Dodaj</button>
+  </form>
 
 </dialog>
 <dialog id="nowyPlikDialog">
-    <p>Nazwa pliku</p>
-    <form action="/addFile" method="get"> <input type="text" name="name">
-        <button type="submit">Dodaj</button>
-    </form>
+  <p>Nazwa pliku</p>
+  <form action="/addFile" method="get">
+    <input type="text" name="name" />
+    <button type="submit">Dodaj</button>
+  </form>
 
 </dialog>
 <script>
-    document.getElementById('nowyFolder').addEventListener('click', (e) => {
-        document.getElementById('nowyFolderDialog').showModal()
-    })
-    document.getElementById('nowyPlik').addEventListener('click', (e) => {
-        document.getElementById('nowyPlikDialog').showModal()
-    })
+  document.getElementById('nowyFolder').addEventListener('click', (e) => {
+  document.getElementById('nowyFolderDialog').showModal() })
+  document.getElementById('nowyPlik').addEventListener('click', (e) => {
+  document.getElementById('nowyPlikDialog').showModal() })
 </script>
