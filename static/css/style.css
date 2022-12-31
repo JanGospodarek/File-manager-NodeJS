@@ -178,7 +178,27 @@ img {
     rgba(0, 212, 255, 1) 95%
   );
   border-radius: 10px;
+  transition: all 0.3s;
+  cursor: pointer;
+}
+.fileItem:hover {
+  transform: scale(1.1);
 }
 #dataList {
   display: flex;
+  flex-wrap: wrap;
+}
+.deleteBtn {
+  background-color: none;
+  padding: 1px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.3s;
+}
+.deleteBtn > img {
+  width: 20px;
+}
+.deleteBtn:hover {
+  transform: scale(1.1);
 }

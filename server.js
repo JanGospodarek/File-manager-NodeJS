@@ -14,7 +14,6 @@ app.engine(
     helpers: {
       renderImg: (name) => {
         let ext = name.split(".")[name.split(".").length - 1];
-        console.log(ext);
         if (ext === name) {
           ext = "folder";
         } else if (extensions.indexOf(ext.toLowerCase()) == -1) {
@@ -35,14 +34,35 @@ function readFiles() {
   fileTab = [];
   fs.readdir(__dirname + "/static/upload", (err, files) => {
     files.forEach((element) => {
+      let type = "";
       let ext = element.split(".")[element.split(".").length - 1];
-      fileTab.push({ name: element, ext: ext });
+      if (ext == element) {
+        type = "dir";
+      } else {
+        type = "file";
+      }
+      fileTab.push({ name: element, ext: ext, type: type });
     });
   });
-  console.log(fileTab);
 }
 readFiles();
-
+function checkIfExists(file) {
+  let name = "";
+  if (fs.existsSync(path.join(__dirname, "/static/upload/", file.name))) {
+    if (file.type == "dir") {
+      name = file.name + `-kopia-${Date.now()}`;
+    } else {
+      let nameArr = file.name.split(".");
+      nameArr[nameArr.length - 2] =
+        nameArr[nameArr.length - 2] + `-kopia-${Date.now()}`;
+      // nameArr.splice(nameArr.length - 1, 0, `-kopia-${Date.now()}`);
+      name = nameArr.join(".");
+    }
+  } else {
+    name = file.name;
+  }
+  return name;
+}
 // app.get("/upload", function (req, res) {
 //   res.render("upload.hbs");
 // });
@@ -56,21 +76,32 @@ app.get("/filemanager", function (req, res) {
 });
 app.get("/addDir", function (req, res) {
   const name = req.query.name;
-  fs.mkdir(path.join(__dirname, "/static/upload/", name), (err) => {
-    if (err) throw err;
-    console.log("jest");
-    readFiles();
-    res.redirect("/filemanager");
-  });
+  console.log(checkIfExists({ name: name }));
+  fs.mkdir(
+    path.join(
+      __dirname,
+      "/static/upload/",
+      checkIfExists({ name: name, type: "dir" })
+    ),
+    (err) => {
+      if (err) throw err;
+      readFiles();
+      res.redirect("/filemanager");
+    }
+  );
 });
 app.get("/addFile", function (req, res) {
   const name = req.query.name;
 
-  fs.writeFile(path.join(__dirname, "/static/upload", name), "", (err) => {
-    if (err) throw err;
-    readFiles();
-    res.redirect("/filemanager");
-  });
+  fs.writeFile(
+    path.join(__dirname, "/static/upload", checkIfExists({ name: name })),
+    "",
+    (err) => {
+      if (err) throw err;
+      readFiles();
+      res.redirect("/filemanager");
+    }
+  );
 });
 app.post("/handleUpload", function (req, res) {
   var form = new formidable.IncomingForm();
@@ -85,9 +116,8 @@ app.post("/handleUpload", function (req, res) {
 
     fs.rename(
       file.path,
-      path.join(__dirname, "/static/upload/", file.name),
+      path.join(__dirname, "/static/upload/", checkIfExists(file)),
       (err) => {
-        console.log(err);
         readFiles();
       }
     );
@@ -134,12 +164,24 @@ app.listen(PORT, function () {
 //   const index = fileTab.findIndex((file) => file.id == id);
 //   res.download(fileTab[index].path);
 // });
-// app.get("/delete/", function (req, res) {
-//   const id = req.query.id;
-//   const index = fileTab.findIndex((file) => file.id == id);
-//   fileTab.splice(index, 1);
-//   res.redirect("/filemanager");
-// });
+app.get("/delete", function (req, res) {
+  const name = req.query.name;
+  const type = req.query.type;
+  console.log(name, type);
+  if (type == "dir") {
+    fs.rmdir(path.join(__dirname, "/static/upload/", name), (err) => {
+      if (err) throw err;
+      console.log("nie ma ");
+    });
+  } else {
+    fs.unlink(path.join(__dirname, "/static/upload/", name), (err) => {
+      if (err) throw err;
+    });
+  }
+  readFiles();
+
+  res.redirect("/filemanager");
+});
 // app.get("/deleteAll", function (req, res) {
 //   fileTab = [];
 //   res.redirect("/filemanager");

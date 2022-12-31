@@ -18,6 +18,14 @@
         <div class="fileItem">
           {{{renderImg name}}}
           <p> {{name}}</p>
+          <form action="/delete" method="get">
+            <input type="text" name="name" value="{{name}}" hidden />
+            <input type="text" name="type" value="{{type}}" hidden />
+            <button class="deleteBtn" type="submit"><img
+                src="img/trash.png"
+                alt="X"
+                width="10"
+              /></button></form>
         </div>{{/each}}
     </div>
   </div>
