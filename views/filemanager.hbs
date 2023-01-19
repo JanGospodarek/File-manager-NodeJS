@@ -12,21 +12,25 @@
 
   </div>
   <div class="centerPanel">
-    <div id="navigation">home></div>
+
+    <div id="navigation">
+      {{#each nav}}
+
+      <a href="/filemanager?name={{curDir}}/{{dir}}">{{dir}}</a>/
+      {{/each}}
+
+    </div>
     <div id="dataList">
       {{#each files}}
-        <div class="fileItem">
-          {{{renderImg name}}}
-          <p> {{name}}</p>
-          <form action="/delete" method="get">
-            <input type="text" name="name" value="{{name}}" hidden />
-            <input type="text" name="type" value="{{type}}" hidden />
-            <button class="deleteBtn" type="submit"><img
-                src="img/trash.png"
-                alt="X"
-                width="10"
-              /></button></form>
-        </div>{{/each}}
+      <div class="fileItem">
+        {{{renderImg name}}}
+        <a href="/filemanager?name={{curDir}}/{{name}}">{{name}}</a>
+        <form action="/delete" method="get">
+          <input type="text" name="name" value="{{name}}" hidden />
+          <input type="text" name="type" value="{{type}}" hidden />
+          <button class="deleteBtn" type="submit"><img src="img/trash.png" alt="X" width="10" /></button>
+        </form>
+      </div>{{/each}}
     </div>
   </div>
 </div>
@@ -47,8 +51,12 @@
 
 </dialog>
 <script>
+
   document.getElementById('nowyFolder').addEventListener('click', (e) => {
-  document.getElementById('nowyFolderDialog').showModal() })
+    document.getElementById('nowyFolderDialog').showModal()
+  })
   document.getElementById('nowyPlik').addEventListener('click', (e) => {
-  document.getElementById('nowyPlikDialog').showModal() })
+    document.getElementById('nowyPlikDialog').showModal()
+  })
+
 </script>

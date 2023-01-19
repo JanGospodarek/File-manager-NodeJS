@@ -5,6 +5,7 @@ const path = require("path");
 const hbs = require("express-handlebars");
 const formidable = require("formidable");
 const fs = require("fs");
+const rimraf = require('rimraf')
 app.use(express.static("static"));
 app.set("views", path.join(__dirname, "views"));
 app.engine(
@@ -20,8 +21,16 @@ app.engine(
           ext = "file";
         }
         return `<img src="img/${ext}.png" alt="Rozszerzenie ${ext}"/>`;
-      },
+      }, compileRoute: (dir) => {
+        console.log('h1', dir);
+        const index = navArr.indexOf(dir)
+        const copy = navArr
+        copy.length = index + 1
+        console.log(copy);
+        return copy.join("/")
+      }
     },
+
   })
 );
 app.set("view engine", "hbs");
@@ -29,10 +38,13 @@ app.set("view engine", "hbs");
 let numOfFiles = 0;
 let fileTab = [];
 let extensions = ["png", "txt", "pdf", "mp4", "js", "jpg", "html"];
+let curDir = "";
+let destination = "home"
+let navArr = []
 
-function readFiles() {
+function readFiles(route) {
   fileTab = [];
-  fs.readdir(__dirname + "/static/upload", (err, files) => {
+  fs.readdir(__dirname + `/static/upload/${route}`, (err, files) => {
     files.forEach((element) => {
       let type = "";
       let ext = element.split(".")[element.split(".").length - 1];
@@ -41,11 +53,11 @@ function readFiles() {
       } else {
         type = "file";
       }
-      fileTab.push({ name: element, ext: ext, type: type });
+      fileTab.push({ name: element, ext: ext, type: type, curDir: curDir });
     });
   });
 }
-readFiles();
+readFiles("");
 function checkIfExists(file) {
   let name = "";
   if (fs.existsSync(path.join(__dirname, "/static/upload/", file.name))) {
@@ -55,7 +67,6 @@ function checkIfExists(file) {
       let nameArr = file.name.split(".");
       nameArr[nameArr.length - 2] =
         nameArr[nameArr.length - 2] + `-kopia-${Date.now()}`;
-      // nameArr.splice(nameArr.length - 1, 0, `-kopia-${Date.now()}`);
       name = nameArr.join(".");
     }
   } else {
@@ -63,29 +74,41 @@ function checkIfExists(file) {
   }
   return name;
 }
-// app.get("/upload", function (req, res) {
-//   res.render("upload.hbs");
-// });
+
 
 app.get("/", function (req, res) {
   res.redirect("/filemanager");
 });
 
 app.get("/filemanager", function (req, res) {
-  res.render("filemanager.hbs", { files: fileTab });
+  destination = req.query.name
+  let curDirarr; let navTab = []
+
+  if (destination) {
+    curDir = destination
+
+    curDirarr = destination.split('/')
+    curDirarr.shift()
+    curDirarr.forEach(el => {
+      navTab.push({ dir: el, curDir: curDir })
+    })
+  } else curDir = ""
+  // console.log(curDir, cur, navArr);
+  readFiles(curDir)
+  res.render("filemanager.hbs", { curDir: curDir, nav: navTab, files: fileTab });
+
 });
 app.get("/addDir", function (req, res) {
   const name = req.query.name;
-  console.log(checkIfExists({ name: name }));
   fs.mkdir(
     path.join(
       __dirname,
-      "/static/upload/",
+      "/static/upload/", curDir,
       checkIfExists({ name: name, type: "dir" })
     ),
     (err) => {
       if (err) throw err;
-      readFiles();
+      readFiles("");
       res.redirect("/filemanager");
     }
   );
@@ -94,31 +117,28 @@ app.get("/addFile", function (req, res) {
   const name = req.query.name;
 
   fs.writeFile(
-    path.join(__dirname, "/static/upload", checkIfExists({ name: name })),
+    path.join(__dirname, "/static/upload", curDir, checkIfExists({ name: name })),
     "",
     (err) => {
       if (err) throw err;
-      readFiles();
+      readFiles("");
       res.redirect("/filemanager");
     }
   );
 });
 app.post("/handleUpload", function (req, res) {
   var form = new formidable.IncomingForm();
-  // form.keepFilenames = true;
 
   form.keepExtensions = true;
   form.multiples = true;
   form.uploadDir = __dirname + "/static/upload";
 
   form.on("file", function (field, file) {
-    //rename the incoming file to the file's name
-
     fs.rename(
       file.path,
-      path.join(__dirname, "/static/upload/", checkIfExists(file)),
+      path.join(__dirname, "/static/upload/", curDir, checkIfExists(file)),
       (err) => {
-        readFiles();
+        readFiles("");
       }
     );
   });
@@ -130,59 +150,41 @@ app.post("/handleUpload", function (req, res) {
 app.listen(PORT, function () {
   console.log("start serwera na porcie " + PORT);
 });
+
+app.get("/delete", function (req, res) {
+  const name = req.query.name;
+  const type = req.query.type;
+  if (type == "dir") {
+    // rimraf(path.join(__dirname, "/static/upload/", curDir, name), () => {
+    //   readFiles("");
+
+    //   res.redirect('/filemanager')
+    // })
+    fs.rmdir(path.join(__dirname, "/static/upload/", curDir, name), { recursive: true }, (err) => {
+      if (err) throw err;
+      readFiles("");
+
+      res.redirect('/filemanager')
+    });
+  } else {
+    fs.unlink(path.join(__dirname, "/static/upload/", curDir, name), (err) => {
+      if (err) throw err;
+      readFiles("");
+
+      res.redirect('/filemanager')
+    });
+  }
+
+});
+
 // app.get("/show/", function (req, res) {
 //   const id = req.query.id;
 //   const index = fileTab.findIndex((file) => file.id == id);
 //   res.sendFile(fileTab[index].path);
 // });
-// app.get("/info/", function (req, res) {
-//   const id = req.query.id;
-//   if (!id)
-//     res.render("info.hbs", {
-//       id: "nie podano",
-//       name: "nie podano",
-//       path: "nie podano",
-//       size: "nie podano",
-//       type: "nie podano",
-//       savedate: "nie podano",
-//     });
-//   else {
-//     const index = fileTab.findIndex((file) => file.id == id);
-//     const el = fileTab[index];
-//     res.render("info.hbs", {
-//       id: el.id,
-//       name: el.name,
-//       path: el.path,
-//       size: el.size,
-//       type: el.type,
-//       savedate: el.savedate,
-//     });
-//   }
-// });
+
 // app.get("/download/", function (req, res) {
 //   const id = req.query.id;
 //   const index = fileTab.findIndex((file) => file.id == id);
 //   res.download(fileTab[index].path);
-// });
-app.get("/delete", function (req, res) {
-  const name = req.query.name;
-  const type = req.query.type;
-  console.log(name, type);
-  if (type == "dir") {
-    fs.rmdir(path.join(__dirname, "/static/upload/", name), (err) => {
-      if (err) throw err;
-      console.log("nie ma ");
-    });
-  } else {
-    fs.unlink(path.join(__dirname, "/static/upload/", name), (err) => {
-      if (err) throw err;
-    });
-  }
-  readFiles();
-
-  res.redirect("/filemanager");
-});
-// app.get("/deleteAll", function (req, res) {
-//   fileTab = [];
-//   res.redirect("/filemanager");
 // });
