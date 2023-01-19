@@ -1,0 +1,54 @@
+<div class="mainCont">
+  <div class="sidePanel">
+    <p>filemanager</p>
+    <button class="sidePanelBtn" id="nowyFolder">nowy folder</button>
+    <button class="sidePanelBtn" id="nowyPlik">nowy plik tekstowy</button>
+    <div class="sidePanelForm">
+      <form enctype="multipart/form-data" method="POST" action="/handleUpload">
+        <input type="file" multiple required id="select" name="upload" />
+        <button id="sub" type="submit">Upload</button>
+      </form>
+    </div>
+
+  </div>
+  <div class="centerPanel">
+    <div id="navigation">home></div>
+    <div id="dataList">
+      {{#each files}}
+        <div class="fileItem">
+          {{{renderImg name}}}
+          <p> {{name}}</p>
+          <form action="/delete" method="get">
+            <input type="text" name="name" value="{{name}}" hidden />
+            <input type="text" name="type" value="{{type}}" hidden />
+            <button class="deleteBtn" type="submit"><img
+                src="img/trash.png"
+                alt="X"
+                width="10"
+              /></button></form>
+        </div>{{/each}}
+    </div>
+  </div>
+</div>
+<dialog id="nowyFolderDialog">
+  <p>Nazwa folderu</p>
+  <form action="/addDir" method="get">
+    <input type="text" name="name" />
+    <button type="submit">Dodaj</button>
+  </form>
+
+</dialog>
+<dialog id="nowyPlikDialog">
+  <p>Nazwa pliku</p>
+  <form action="/addFile" method="get">
+    <input type="text" name="name" />
+    <button type="submit">Dodaj</button>
+  </form>
+
+</dialog>
+<script>
+  document.getElementById('nowyFolder').addEventListener('click', (e) => {
+  document.getElementById('nowyFolderDialog').showModal() })
+  document.getElementById('nowyPlik').addEventListener('click', (e) => {
+  document.getElementById('nowyPlikDialog').showModal() })
+</script>

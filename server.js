@@ -5,7 +5,6 @@ const path = require("path");
 const hbs = require("express-handlebars");
 const formidable = require("formidable");
 const fs = require("fs");
-const rimraf = require("rimraf");
 app.use(express.static("static"));
 app.set("views", path.join(__dirname, "views"));
 app.engine(
@@ -54,6 +53,17 @@ function readFiles(route) {
         type = "file";
       }
       fileTab.push({ name: element, ext: ext, type: type, curDir: curDir });
+      console.log(fileTab);
+      fileTab.sort(function (a, b) {
+        if (a.type < b.type) {
+          return -1;
+        }
+        if (a.type > b.type) {
+          return 1;
+        }
+        return 0;
+      });
+      console.log(fileTab);
     });
   });
 }
@@ -114,8 +124,8 @@ app.get("/addDir", function (req, res) {
     ),
     (err) => {
       if (err) throw err;
-      readFiles("");
-      res.redirect("/filemanager");
+      // readFiles(curDir);
+      res.redirect(`/filemanager?name=${curDir}`);
     }
   );
 });
@@ -132,8 +142,8 @@ app.get("/addFile", function (req, res) {
     "",
     (err) => {
       if (err) throw err;
-      readFiles("");
-      res.redirect("/filemanager");
+      // readFiles(curDir);
+      res.redirect(`/filemanager?name=${curDir}`);
     }
   );
 });
@@ -155,7 +165,7 @@ app.get("/changeDirName", function (req, res) {
     (err) => {
       if (err) console.log(err);
       else {
-        res.redirect("/filemanager");
+        res.redirect(`/filemanager?name=${curDir}`);
       }
     }
   );
