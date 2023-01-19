@@ -81,26 +81,26 @@ app.get("/", function (req, res) {
 
 app.get("/filemanager", function (req, res) {
   destination = req.query.name;
-  let curDirarr;
+  let curDirarr,
+    changeName = false;
   let navTab = [];
-
+  console.log(destination);
   if (destination) {
     curDir = destination;
-    console.log("income: ", curDir);
     curDirarr = destination.split("/");
     // curDirarr.shift();
-    console.log("arr:", curDirarr);
     curDirarr.forEach((el, i) => {
       navTab.push({ dir: el, curDir: curDirarr.slice(0, i).join("/") });
     });
+    changeName = true;
   } else curDir = "";
   // console.log(curDir, cur, navArr);
-  console.log(navTab, curDir);
   readFiles(curDir);
   res.render("filemanager.hbs", {
     curDir: curDir,
     nav: navTab,
     files: fileTab,
+    renderChangeName: changeName,
   });
 });
 app.get("/addDir", function (req, res) {
@@ -134,6 +134,29 @@ app.get("/addFile", function (req, res) {
       if (err) throw err;
       readFiles("");
       res.redirect("/filemanager");
+    }
+  );
+});
+app.get("/changeDirName", function (req, res) {
+  const newName = req.query.name;
+  const route = req.query.curDir;
+  const cur = route.split("/")[route.split("/").length - 1];
+  const arr = route.split("/");
+  arr.pop();
+  const r = arr.join("/");
+  fs.rename(
+    path.join(__dirname, "/static/upload/", route),
+    path.join(
+      __dirname,
+      "/static/upload/",
+      r,
+      checkIfExists({ name: newName, type: "dir" })
+    ),
+    (err) => {
+      if (err) console.log(err);
+      else {
+        res.redirect("/filemanager");
+      }
     }
   );
 });

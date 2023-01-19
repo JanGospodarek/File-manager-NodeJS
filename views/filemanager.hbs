@@ -3,6 +3,17 @@
     <p>filemanager</p>
     <button class="sidePanelBtn" id="nowyFolder">nowy folder</button>
     <button class="sidePanelBtn" id="nowyPlik">nowy plik tekstowy</button>
+
+    {{#if renderChangeName}}
+      <button class="sidePanelBtn" id="zmianaNazwy">zmień nazwę aktualnego
+        folderu</button>
+    {{else}}
+      <button
+        class="sidePanelBtn"
+        id="zmianaNazwy"
+        style="display:none;visibility:hidden;"
+      ></button>
+    {{/if}}
     <div class="sidePanelForm">
       <form enctype="multipart/form-data" method="POST" action="/handleUpload">
         <input type="file" multiple required id="select" name="upload" />
@@ -16,21 +27,25 @@
     <div id="navigation">
       {{#each nav}}
 
-      <a href="/filemanager?name={{curDir}}/{{dir}}">{{dir}}</a>/
+        <a href="/filemanager?name={{curDir}}/{{dir}}">{{dir}}</a>/
       {{/each}}
 
     </div>
     <div id="dataList">
       {{#each files}}
-      <div class="fileItem">
-        {{{renderImg name}}}
-        <a href="/filemanager?name={{curDir}}/{{name}}">{{name}}</a>
-        <form action="/delete" method="get">
-          <input type="text" name="name" value="{{name}}" hidden />
-          <input type="text" name="type" value="{{type}}" hidden />
-          <button class="deleteBtn" type="submit"><img src="img/trash.png" alt="X" width="10" /></button>
-        </form>
-      </div>{{/each}}
+        <div class="fileItem">
+          {{{renderImg name}}}
+          <a href="/filemanager?name={{curDir}}/{{name}}">{{name}}</a>
+          <form action="/delete" method="get">
+            <input type="text" name="name" value="{{name}}" hidden />
+            <input type="text" name="type" value="{{type}}" hidden />
+            <button class="deleteBtn" type="submit"><img
+                src="img/trash.png"
+                alt="X"
+                width="10"
+              /></button>
+          </form>
+        </div>{{/each}}
     </div>
   </div>
 </div>
@@ -50,13 +65,22 @@
   </form>
 
 </dialog>
+<dialog id="zmianaNazwyDialog">
+  <p>Zmiana nazwy folderu</p>
+  <form action="/changeDirName" method="get">
+    <input type="text" name="name" />
+    <input type="text" name="curDir" value="{{curDir}}" hidden />
+    <button type="submit">Zmień</button>
+  </form>
+
+</dialog>
 <script>
 
   document.getElementById('nowyFolder').addEventListener('click', (e) => {
-    document.getElementById('nowyFolderDialog').showModal()
-  })
+  document.getElementById('nowyFolderDialog').showModal() })
   document.getElementById('nowyPlik').addEventListener('click', (e) => {
-    document.getElementById('nowyPlikDialog').showModal()
-  })
+  document.getElementById('nowyPlikDialog').showModal() })
+  document.getElementById('zmianaNazwy').addEventListener('click', (e) => {
+  document.getElementById('zmianaNazwyDialog').showModal() })
 
 </script>
