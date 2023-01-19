@@ -52,8 +52,13 @@ function readFiles(route) {
       } else {
         type = "file";
       }
-      fileTab.push({ name: element, ext: ext, type: type, curDir: curDir });
-      console.log(fileTab);
+      fileTab.push({
+        name: element,
+        ext: ext,
+        type: type,
+        curDir: curDir,
+        isFile: type == "file" ? true : false,
+      });
       fileTab.sort(function (a, b) {
         if (a.type < b.type) {
           return -1;
@@ -63,7 +68,6 @@ function readFiles(route) {
         }
         return 0;
       });
-      console.log(fileTab);
     });
   });
 }
@@ -94,24 +98,25 @@ app.get("/filemanager", function (req, res) {
   let curDirarr,
     changeName = false;
   let navTab = [];
-  console.log(destination);
   if (destination) {
     curDir = destination;
     curDirarr = destination.split("/");
-    // curDirarr.shift();
     curDirarr.forEach((el, i) => {
       navTab.push({ dir: el, curDir: curDirarr.slice(0, i).join("/") });
     });
     changeName = true;
   } else curDir = "";
-  // console.log(curDir, cur, navArr);
-  readFiles(curDir);
-  res.render("filemanager.hbs", {
-    curDir: curDir,
-    nav: navTab,
-    files: fileTab,
-    renderChangeName: changeName,
-  });
+  if (destination.split(".").length > 0) {
+    res.render("editor.hbs");
+  } else {
+    readFiles(curDir);
+    res.render("filemanager.hbs", {
+      curDir: curDir,
+      nav: navTab,
+      files: fileTab,
+      renderChangeName: changeName,
+    });
+  }
 });
 app.get("/addDir", function (req, res) {
   const name = req.query.name;

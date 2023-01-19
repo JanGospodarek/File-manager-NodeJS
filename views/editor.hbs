@@ -1,0 +1,35 @@
+<div class="mainCont">
+  <div class="sidePanel">
+    <button class="sidePanelBtn" id="fontP">font+</button>
+    <button class="sidePanelBtn" id="color">kolory</button>
+    <button class="sidePanelBtn" id="fontM">font-</button>
+    <button class="sidePanelBtn" id="save">zapisz ustawienia</button>
+    <button class="sidePanelBtn" id="changeName">zmiana nazwy</button>
+
+   
+
+  </div>
+  <div class="centerPanel">
+
+    <div id="label">{{name}}</div>
+        <textarea  id="textarea" cols="30" rows="10" value='{{content}}'></textarea>
+   
+    </div>
+  </div>
+</div>
+<dialog id="changeNameDialog">
+  <p>Nazwa Pliku</p>
+  <form action="/changeFileName" method="get">
+    <input type="text" name="name" />
+    <button type="submit">Dodaj</button>
+  </form>
+
+</dialog>
+
+<script>
+
+  document.getElementById('changeName').addEventListener('click', (e) => {
+  document.getElementById('changeNameDialog').showModal() })
+
+
+</script>

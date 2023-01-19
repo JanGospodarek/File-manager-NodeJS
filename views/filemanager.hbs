@@ -35,7 +35,7 @@
       {{#each files}}
         <div class="fileItem">
           {{{renderImg name}}}
-          <a href="/filemanager?name={{curDir}}/{{name}}">{{name}}</a>
+          <a href="/filemanager?name={{curDir}}/{{name}}{{#if isFile}}?editor=true{{/if}}">{{name}}</a>
           <form action="/delete" method="get">
             <input type="text" name="name" value="{{name}}" hidden />
             <input type="text" name="type" value="{{type}}" hidden />
