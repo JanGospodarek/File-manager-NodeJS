@@ -5,7 +5,7 @@ const path = require("path");
 const hbs = require("express-handlebars");
 const formidable = require("formidable");
 const fs = require("fs");
-const rimraf = require('rimraf')
+const rimraf = require("rimraf");
 app.use(express.static("static"));
 app.set("views", path.join(__dirname, "views"));
 app.engine(
@@ -21,16 +21,16 @@ app.engine(
           ext = "file";
         }
         return `<img src="img/${ext}.png" alt="Rozszerzenie ${ext}"/>`;
-      }, compileRoute: (dir) => {
-        console.log('h1', dir);
-        const index = navArr.indexOf(dir)
-        const copy = navArr
-        copy.length = index + 1
+      },
+      compileRoute: (dir) => {
+        console.log("h1", dir);
+        const index = navArr.indexOf(dir);
+        const copy = navArr;
+        copy.length = index + 1;
         console.log(copy);
-        return copy.join("/")
-      }
+        return copy.join("/");
+      },
     },
-
   })
 );
 app.set("view engine", "hbs");
@@ -39,8 +39,8 @@ let numOfFiles = 0;
 let fileTab = [];
 let extensions = ["png", "txt", "pdf", "mp4", "js", "jpg", "html"];
 let curDir = "";
-let destination = "home"
-let navArr = []
+let destination = "home";
+let navArr = [];
 
 function readFiles(route) {
   fileTab = [];
@@ -75,35 +75,41 @@ function checkIfExists(file) {
   return name;
 }
 
-
 app.get("/", function (req, res) {
   res.redirect("/filemanager");
 });
 
 app.get("/filemanager", function (req, res) {
-  destination = req.query.name
-  let curDirarr; let navTab = []
+  destination = req.query.name;
+  let curDirarr;
+  let navTab = [];
 
   if (destination) {
-    curDir = destination
-
-    curDirarr = destination.split('/')
-    curDirarr.shift()
-    curDirarr.forEach(el => {
-      navTab.push({ dir: el, curDir: curDir })
-    })
-  } else curDir = ""
+    curDir = destination;
+    console.log("income: ", curDir);
+    curDirarr = destination.split("/");
+    // curDirarr.shift();
+    console.log("arr:", curDirarr);
+    curDirarr.forEach((el, i) => {
+      navTab.push({ dir: el, curDir: curDirarr.slice(0, i).join("/") });
+    });
+  } else curDir = "";
   // console.log(curDir, cur, navArr);
-  readFiles(curDir)
-  res.render("filemanager.hbs", { curDir: curDir, nav: navTab, files: fileTab });
-
+  console.log(navTab, curDir);
+  readFiles(curDir);
+  res.render("filemanager.hbs", {
+    curDir: curDir,
+    nav: navTab,
+    files: fileTab,
+  });
 });
 app.get("/addDir", function (req, res) {
   const name = req.query.name;
   fs.mkdir(
     path.join(
       __dirname,
-      "/static/upload/", curDir,
+      "/static/upload/",
+      curDir,
       checkIfExists({ name: name, type: "dir" })
     ),
     (err) => {
@@ -117,7 +123,12 @@ app.get("/addFile", function (req, res) {
   const name = req.query.name;
 
   fs.writeFile(
-    path.join(__dirname, "/static/upload", curDir, checkIfExists({ name: name })),
+    path.join(
+      __dirname,
+      "/static/upload",
+      curDir,
+      checkIfExists({ name: name })
+    ),
     "",
     (err) => {
       if (err) throw err;
@@ -160,21 +171,24 @@ app.get("/delete", function (req, res) {
 
     //   res.redirect('/filemanager')
     // })
-    fs.rmdir(path.join(__dirname, "/static/upload/", curDir, name), { recursive: true }, (err) => {
-      if (err) throw err;
-      readFiles("");
+    fs.rmdir(
+      path.join(__dirname, "/static/upload/", curDir, name),
+      { recursive: true },
+      (err) => {
+        if (err) throw err;
+        readFiles("");
 
-      res.redirect('/filemanager')
-    });
+        res.redirect("/filemanager");
+      }
+    );
   } else {
     fs.unlink(path.join(__dirname, "/static/upload/", curDir, name), (err) => {
       if (err) throw err;
       readFiles("");
 
-      res.redirect('/filemanager')
+      res.redirect("/filemanager");
     });
   }
-
 });
 
 // app.get("/show/", function (req, res) {
