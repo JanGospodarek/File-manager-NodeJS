@@ -106,7 +106,7 @@ app.get("/filemanager", function (req, res) {
     });
     changeName = true;
   } else curDir = "";
-  if (destination.split(".").length > 0) {
+  if (destination && destination.split(".").length > 1) {
     res.render("editor.hbs");
   } else {
     readFiles(curDir);
@@ -155,7 +155,7 @@ app.get("/addFile", function (req, res) {
 app.get("/changeDirName", function (req, res) {
   const newName = req.query.name;
   const route = req.query.curDir;
-  const cur = route.split("/")[route.split("/").length - 1];
+  const cur = route.split("/");
   const arr = route.split("/");
   arr.pop();
   const r = arr.join("/");
@@ -170,7 +170,8 @@ app.get("/changeDirName", function (req, res) {
     (err) => {
       if (err) console.log(err);
       else {
-        res.redirect(`/filemanager?name=${curDir}`);
+        console.log(r + newName);
+        res.redirect(`/filemanager?name=${r + "/" + newName}`);
       }
     }
   );
