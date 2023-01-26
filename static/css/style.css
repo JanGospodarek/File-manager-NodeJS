@@ -215,7 +215,6 @@ img {
   height: 75vh;
   border-radius: 0;
   resize: none;
-  font-size: 16px;
   line-height: 1.2;
   outline: none;
 
@@ -235,14 +234,14 @@ img {
   /* color: #707070;
   background-color: #d8d8d8; */
   position: absolute;
-  width: 1.5rem;
+  width: 1.9rem;
   /* background-color: #3e3d32;
   border-color: #3e3d32; */
   /* color: #928869; */
 }
 #codeEditor {
   height: 100%;
-  padding-left: calc(1.5rem + 5px);
+  padding-left: calc(1.9rem + 5px);
   width: 100%;
   /* background-color: #272822;
   border-color: #272822;

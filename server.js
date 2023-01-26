@@ -33,7 +33,7 @@ app.engine(
   })
 );
 app.set("view engine", "hbs");
-
+app.use(express.json());
 let rawdata = fs.readFileSync("static/data/data.json");
 let defaultFiles = JSON.parse(rawdata);
 let rawdata2 = fs.readFileSync("config/config.json");
@@ -42,7 +42,7 @@ let numOfFiles = 0;
 let fileTab = [];
 let extensions = ["png", "txt", "pdf", "mp4", "js", "jpg", "html"];
 let curDir = "";
-let destination = "home";
+let destination = "";
 let navArr = [];
 
 function readFiles(route) {
@@ -254,6 +254,14 @@ app.get("/delete", function (req, res) {
 });
 app.get("/getConfig", function (req, res) {
   res.send(config);
+});
+app.post("/saveConfig", function (req, res) {
+  console.log(req.body);
+
+  // fs.writeFile(path.join(__dirname, "config/config.json"), req.body, (err) => {
+  //   if (err) throw err;
+  //   res.redirect(`/filemanager?name=${destination}?editor=true`);
+  // });
 });
 // app.get("/show/", function (req, res) {
 //   const id = req.query.id;

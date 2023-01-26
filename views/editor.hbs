@@ -12,8 +12,9 @@
   <div class="centerPanel">
 
     <div id="label">{{name}}</div>
-  <textarea id='lineCounter' wrap='off' class="color-blue-line" readonly>1.</textarea>
-  <textarea id='codeEditor' wrap='off' class="color-blue-editor">{{content}}</textarea>   
+ <textarea id='lineCounter' wrap='off'  readonly>1.</textarea>
+  <textarea id='codeEditor' wrap='off' >{{content}}</textarea>   
+ 
     </div>
   </div>
 </div>
@@ -30,9 +31,13 @@
   document.getElementById('changeName').addEventListener('click', (e) => {
   document.getElementById('changeNameDialog').showModal() })
 const classes={'color-blue':['color-blue-editor','color-blue-line'],'color-violet':['color-violet-editor','color-violet-line'],'color-grey':['color-grey-editor','color-grey-line'],'color-contrast':['color-contrast-editor','color-contrast-line']}
-
+let editorClass,lineClass,fontSize,theme;
 const codeEditor = document.getElementById('codeEditor');
 const lineCounter = document.getElementById('lineCounter');
+const btnFontP=document.getElementById('fontP')
+const btnFontM=document.getElementById('fontM')
+const btnColor=document.getElementById('color')
+const btnSave=document.getElementById('save')
 codeEditor.addEventListener('keydown', (e) => {
        let { keyCode } = e;
        let { value, selectionStart, selectionEnd } = codeEditor;
@@ -65,9 +70,50 @@ async function getConfig() {
 }
 getConfig().then(data=>{
   const index=classes[data.theme]
-  const [editorClass,lineClass]=index
-  console.log(editorClass,lineClass)
+  theme=data.theme
+  {{!-- editorClass=index[0]
+  lineClass=index[1] --}}
+  fontSize=data['font-size']
+  rednerCnf();
   })
 
+function rednerCnf(){
+  codeEditor.classList=[]
+  codeEditor.classList.add(classes[theme][0])
+  lineCounter.classList=[]
+  lineCounter.classList.add(classes[theme][1])
+  codeEditor.style.fontSize=`${fontSize}px`
+  lineCounter.style.fontSize=`${fontSize}px`
+}
+btnFontP.addEventListener('click',()=>{
+  fontSize+=1
+  rednerCnf()
+})
+btnFontM.addEventListener('click',()=>{
+  fontSize-=1
+  rednerCnf()
+})
+color.addEventListener('click',()=>{
+  let keys = Object.keys(classes);
+ let nextIndex = keys.indexOf(theme) +1;
+ let nextItem = keys[nextIndex];
 
+  if(nextItem==undefined)
+  theme=keys[0]
+  else  
+  theme=nextItem
+  rednerCnf()
+})
+btnSave.addEventListener('click',()=>{
+  const exitData={
+    'font-size':fontSize,
+    theme:theme,
+  }
+  console.log(exitData)
+  fetch('/saveConfig',{
+	method: 'POST',
+	body: JSON.stringify(exitData), 
+	headers: {
+		'Content-type': 'application/json'	}})
+})
 </script>
