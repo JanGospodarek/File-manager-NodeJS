@@ -36,6 +36,8 @@ app.set("view engine", "hbs");
 
 let rawdata = fs.readFileSync("static/data/data.json");
 let defaultFiles = JSON.parse(rawdata);
+let rawdata2 = fs.readFileSync("config/config.json");
+let config = JSON.parse(rawdata2);
 let numOfFiles = 0;
 let fileTab = [];
 let extensions = ["png", "txt", "pdf", "mp4", "js", "jpg", "html"];
@@ -97,6 +99,7 @@ app.get("/", function (req, res) {
 
 app.get("/filemanager", function (req, res) {
   destination = req.query.name;
+
   let curDirarr,
     changeName = false;
   let navTab = [];
@@ -109,7 +112,24 @@ app.get("/filemanager", function (req, res) {
     changeName = true;
   } else curDir = "";
   if (destination && destination.split(".").length > 1) {
-    res.render("editor.hbs");
+    // const ext = destination.split(".")[1].split("?")[0];
+    // const fileContent = defaultFiles[ext] ? defaultFiles[ext] : "";
+    // console.log("cintent", destination.split(".")[1].split("?")[0]);
+    fs.readFile(
+      path.join(__dirname, "/static/upload", curDir.split("?")[0]),
+      "utf8",
+      (err, data) => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        console.log(data);
+        res.render("editor.hbs", {
+          name: destination.split("?")[0],
+          content: data,
+        });
+      }
+    );
   } else {
     readFiles(curDir);
     res.render("filemanager.hbs", {
@@ -232,7 +252,9 @@ app.get("/delete", function (req, res) {
     });
   }
 });
-
+app.get("/getConfig", function (req, res) {
+  res.send(config);
+});
 // app.get("/show/", function (req, res) {
 //   const id = req.query.id;
 //   const index = fileTab.findIndex((file) => file.id == id);

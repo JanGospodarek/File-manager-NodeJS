@@ -206,3 +206,77 @@ img {
 .deleteBtn:hover {
   transform: scale(1.1);
 }
+
+#codeEditor,
+#lineCounter {
+  font-family: lucida console, courier new, courier, monospace;
+  margin: 0;
+  padding: 10px 0;
+  height: 75vh;
+  border-radius: 0;
+  resize: none;
+  font-size: 16px;
+  line-height: 1.2;
+  outline: none;
+
+  box-sizing: border-box;
+}
+#lineCounter:focus-visible,
+#codeEditor:focus-visible {
+  outline: none;
+}
+#lineCounter {
+  display: flex;
+  height: 100%;
+  border-color: transparent;
+  overflow-y: hidden;
+  text-align: right;
+  box-shadow: none;
+  /* color: #707070;
+  background-color: #d8d8d8; */
+  position: absolute;
+  width: 1.5rem;
+  /* background-color: #3e3d32;
+  border-color: #3e3d32; */
+  /* color: #928869; */
+}
+#codeEditor {
+  height: 100%;
+  padding-left: calc(1.5rem + 5px);
+  width: 100%;
+  /* background-color: #272822;
+  border-color: #272822;
+  color: #ffffff; */
+}
+.color-violet-editor {
+  background-color: #2b0232;
+  color: white;
+}
+.color-violet-line {
+  background-color: #19011e;
+  color: rgb(183, 183, 183);
+}
+.color-grey-editor {
+  background-color: #353535;
+  color: white;
+}
+.color-grey-line {
+  background-color: #161616;
+  color: rgb(183, 183, 183);
+}
+.color-contrast-editor {
+  background-color: #131313;
+  color: rgb(64, 202, 5);
+}
+.color-contrast-line {
+  background-color: #000000;
+  color: rgb(246, 8, 8);
+}
+.color-blue-editor {
+  background-color: #000a2b;
+  color: rgb(182, 202, 5);
+}
+.color-blue-line {
+  background-color: #01011d;
+  color: rgb(246, 143, 8);
+}
