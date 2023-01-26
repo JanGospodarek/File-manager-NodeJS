@@ -34,6 +34,8 @@ app.engine(
 );
 app.set("view engine", "hbs");
 
+let rawdata = fs.readFileSync("static/data/data.json");
+let defaultFiles = JSON.parse(rawdata);
 let numOfFiles = 0;
 let fileTab = [];
 let extensions = ["png", "txt", "pdf", "mp4", "js", "jpg", "html"];
@@ -136,7 +138,8 @@ app.get("/addDir", function (req, res) {
 });
 app.get("/addFile", function (req, res) {
   const name = req.query.name;
-
+  const ext = name.split(".")[name.split(".").length - 1];
+  const fileContent = defaultFiles[ext] ? defaultFiles[ext] : "";
   fs.writeFile(
     path.join(
       __dirname,
@@ -144,7 +147,7 @@ app.get("/addFile", function (req, res) {
       curDir,
       checkIfExists({ name: name })
     ),
-    "",
+    fileContent,
     (err) => {
       if (err) throw err;
       // readFiles(curDir);
