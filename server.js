@@ -211,9 +211,7 @@ app.get("/changeName", function (req, res) {
   const route = req.query.curDir;
   console.log(newName, route);
   if (newName.length == 0) {
-    res.send(
-      "Błąd nazwy, (nie może być pusta)"
-    );
+    res.send("Błąd nazwy, (nie może być pusta)");
     return;
   }
   let type;
@@ -314,12 +312,16 @@ app.post("/saveFile", function (req, res) {
   const value = req.body.value;
   const imgData = req.body.dataUrl;
   if (value)
-    fs.writeFile(path.join(__dirname, "/static/upload", route), value, (err) => {
-      if (err) throw err;
-    });
+    fs.writeFile(
+      path.join(__dirname, "/static/upload", route),
+      value,
+      (err) => {
+        if (err) throw err;
+      }
+    );
   else {
-    const data = imgData.split(',')[1];
-    const buffer = Buffer.from(data, 'base64');
+    const data = imgData.split(",")[1];
+    const buffer = Buffer.from(data, "base64");
     console.log(data);
     fs.writeFileSync(path.join(__dirname, "/static/upload", route), buffer);
   }
@@ -332,13 +334,15 @@ app.get("/showFile", function (req, res) {
 app.listen(PORT, function () {
   console.log("start serwera na porcie " + PORT);
 });
-users = [{
-  login: 'wow',
-  pass: 'wow'
-}]
+users = [
+  {
+    login: "wow",
+    pass: "wow",
+  },
+];
 //registering
 app.get("/register", function (req, res) {
-  res.render('register.hbs')
+  res.render("register.hbs");
 });
 // app.post("/getUserInfo", function (req, res) {
 //   const data = req.body
@@ -357,14 +361,29 @@ app.get("/register", function (req, res) {
 //   console.log(data);
 //   res.render('error.hbs', { message: data })
 // })
-app.get('/handleRegister', function (req, res) {
-  const data = req.query
-  if (users.findIndex(el => el.login == data.login) !== -1) {
-    res.render('error.hbs', { message: 'Takie uzytkownik już istnieje' })
+app.get("/handleRegister", function (req, res) {
+  const data = req.query;
+  if (users.findIndex((el) => el.login == data.login) !== -1) {
+    res.render("error.hbs", { message: "Takie uzytkownik już istnieje" });
   } else {
-    users.push(data)
-    res.redirect('/login')
+    users.push(data);
+    res.redirect("/login");
   }
   console.log(users);
+});
 
-})
+app.get("/login", function (req, res) {
+  res.render("login.hbs");
+});
+
+app.get("/handleLogin", function (req, res) {
+  const data = req.query;
+  const index=users.findIndex((el) => el.login == data.login)
+  if ( index== -1) {
+    res.render("error.hbs", { message: "Taki uzytkownik nie istnieje" });
+  } else if(users[index].pass==data.pass) {
+    
+    res.send("zalogowano");
+  }
+  console.log(users);
+});
