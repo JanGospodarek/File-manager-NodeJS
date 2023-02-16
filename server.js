@@ -22,11 +22,9 @@ app.engine(
         return `<img src="img/${ext}.png" alt="Rozszerzenie ${ext}"/>`;
       },
       compileRoute: (dir) => {
-        console.log("h1", dir);
         const index = navArr.indexOf(dir);
         const copy = navArr;
         copy.length = index + 1;
-        console.log(copy);
         return copy.join("/");
       },
     },
@@ -34,17 +32,22 @@ app.engine(
 );
 app.set("view engine", "hbs");
 app.use(express.json());
+
 let rawdata = fs.readFileSync("static/data/data.json");
 let defaultFiles = JSON.parse(rawdata);
-let rawdata2 = fs.readFileSync("config/config.json");
-let config = JSON.parse(rawdata2);
-let numOfFiles = 0;
 let fileTab = [];
 let extensions = ["png", "txt", "pdf", "mp4", "js", "jpg", "html"];
 let curDir = "";
 let destination = "";
 let navArr = [];
-
+const effects = [
+  {
+    name: "grayscale",
+    imagePath: "/img/gamut.jpg",
+  },
+  { name: "invert", imagePath: "/img/gamut.jpg" },
+  { name: "sepia", imagePath: "/img/gamut.jpg" },
+];
 function readFiles(route) {
   fileTab = [];
   fs.readdir(__dirname + `/static/upload/${route}`, (err, files) => {
@@ -75,10 +78,19 @@ function readFiles(route) {
     });
   });
 }
+
 readFiles("");
+
 function checkIfExists(file) {
   let name = "";
-  if (fs.existsSync(path.join(__dirname, "/static/upload/", file.name))) {
+  let r = "";
+  console.log(file.route);
+  if (file.route) r = file.route;
+  console.log(
+    fs.existsSync(path.join(__dirname, "/static/upload/", r, file.name)),
+    path.join(__dirname, "/static/upload/", r, file.name)
+  );
+  if (fs.existsSync(path.join(__dirname, "/static/upload/", r, file.name))) {
     if (file.type == "dir") {
       name = file.name + `-kopia-${Date.now()}`;
     } else {
@@ -112,9 +124,6 @@ app.get("/filemanager", function (req, res) {
     changeName = true;
   } else curDir = "";
   if (destination && destination.split(".").length > 1) {
-    // const ext = destination.split(".")[1].split("?")[0];
-    // const fileContent = defaultFiles[ext] ? defaultFiles[ext] : "";
-    // console.log("cintent", destination.split(".")[1].split("?")[0]);
     fs.readFile(
       path.join(__dirname, "/static/upload", curDir.split("?")[0]),
       "utf8",
@@ -123,11 +132,19 @@ app.get("/filemanager", function (req, res) {
           console.error(err);
           return;
         }
-        console.log(data);
-        res.render("editor.hbs", {
-          name: destination.split("?")[0],
-          content: data,
-        });
+        const ext = curDir.split("?")[0].split(".")[curDir.split("?").length];
+        if (["png", "jpg", "jpeg", "webp", "gif", "svg"].includes(ext)) {
+          res.render("imgEditor.hbs", {
+            name: destination.split("?")[0],
+            content: data,
+            effects: effects,
+          });
+        } else {
+          res.render("editor.hbs", {
+            name: destination.split("?")[0],
+            content: data,
+          });
+        }
       }
     );
   } else {
@@ -140,8 +157,16 @@ app.get("/filemanager", function (req, res) {
     });
   }
 });
+
 app.get("/addDir", function (req, res) {
   const name = req.query.name;
+  if (name.split(".").length > 1) {
+    res.send(
+      "Błąd nazwy, (nazwa nie może zawierać kropek i innych znaków specjalnych)!"
+    );
+    return;
+  }
+
   fs.mkdir(
     path.join(
       __dirname,
@@ -151,57 +176,84 @@ app.get("/addDir", function (req, res) {
     ),
     (err) => {
       if (err) throw err;
-      // readFiles(curDir);
+
       res.redirect(`/filemanager?name=${curDir}`);
     }
   );
 });
+
 app.get("/addFile", function (req, res) {
   const name = req.query.name;
   const ext = name.split(".")[name.split(".").length - 1];
+  if (ext == name) {
+    res.send("Brak rozszerzenia!");
+    return;
+  }
   const fileContent = defaultFiles[ext] ? defaultFiles[ext] : "";
   fs.writeFile(
     path.join(
       __dirname,
       "/static/upload",
       curDir,
-      checkIfExists({ name: name })
+      checkIfExists({ name: name, route: curDir })
     ),
     fileContent,
     (err) => {
       if (err) throw err;
-      // readFiles(curDir);
+
       res.redirect(`/filemanager?name=${curDir}`);
     }
   );
 });
-app.get("/changeDirName", function (req, res) {
-  const newName = req.query.name;
+
+app.get("/changeName", function (req, res) {
+  const newName = req.query.name.trim();
   const route = req.query.curDir;
-  const cur = route.split("/");
+  console.log(newName, route);
+  if (newName.length == 0) {
+    res.send(
+      "Błąd nazwy, (nie może być pusta)"
+    );
+    return;
+  }
+  let type;
+  if (route.split(".").length > 1) type = "file";
+  else type = "dir";
+
+  if (newName.split(".").length > 1 && type == "dir") {
+    res.send(
+      "Błąd nazwy, (nazwa nie może zawierać kropek i innych znaków specjalnych)!"
+    );
+    return;
+  }
+  if (newName.split(".").length < 1 && type == "file") {
+    res.send("Błąd nazwy, (nazwa musi zawieraćrozszerzenie)!");
+    return;
+  }
   const arr = route.split("/");
   arr.pop();
   const r = arr.join("/");
+  console.log(type);
+  const compiledName = checkIfExists({
+    name: newName,
+    type: type,
+    route: r,
+  });
+  console.log("basic:", route, "new", r, compiledName);
   fs.rename(
     path.join(__dirname, "/static/upload/", route),
-    path.join(
-      __dirname,
-      "/static/upload/",
-      r,
-      checkIfExists({ name: newName, type: "dir" })
-    ),
+    path.join(__dirname, "/static/upload/", r, compiledName),
     (err) => {
       if (err) console.log(err);
       else {
-        console.log(r + newName);
-        res.redirect(`/filemanager?name=${r + "/" + newName}`);
+        res.redirect(`/filemanager?name=${r + "/" + compiledName}`);
       }
     }
   );
 });
+
 app.post("/handleUpload", function (req, res) {
   var form = new formidable.IncomingForm();
-
   form.keepExtensions = true;
   form.multiples = true;
   form.uploadDir = __dirname + "/static/upload";
@@ -220,19 +272,10 @@ app.post("/handleUpload", function (req, res) {
   });
 });
 
-app.listen(PORT, function () {
-  console.log("start serwera na porcie " + PORT);
-});
-
 app.get("/delete", function (req, res) {
   const name = req.query.name;
   const type = req.query.type;
   if (type == "dir") {
-    // rimraf(path.join(__dirname, "/static/upload/", curDir, name), () => {
-    //   readFiles("");
-
-    //   res.redirect('/filemanager')
-    // })
     fs.rmdir(
       path.join(__dirname, "/static/upload/", curDir, name),
       { recursive: true },
@@ -252,25 +295,76 @@ app.get("/delete", function (req, res) {
     });
   }
 });
+
 app.get("/getConfig", function (req, res) {
+  let rawdata2 = fs.readFileSync("config/config.json");
+  let config = JSON.parse(rawdata2);
   res.send(config);
 });
+
 app.post("/saveConfig", function (req, res) {
-  console.log(req.body);
-
-  // fs.writeFile(path.join(__dirname, "config/config.json"), req.body, (err) => {
-  //   if (err) throw err;
-  //   res.redirect(`/filemanager?name=${destination}?editor=true`);
-  // });
+  const data = JSON.stringify(req.body);
+  fs.writeFile(path.join(__dirname, "config/config.json"), data, (err) => {
+    if (err) throw err;
+  });
 });
-// app.get("/show/", function (req, res) {
-//   const id = req.query.id;
-//   const index = fileTab.findIndex((file) => file.id == id);
-//   res.sendFile(fileTab[index].path);
-// });
 
-// app.get("/download/", function (req, res) {
-//   const id = req.query.id;
-//   const index = fileTab.findIndex((file) => file.id == id);
-//   res.download(fileTab[index].path);
+app.post("/saveFile", function (req, res) {
+  const route = req.body.route.split("?")[0];
+  const value = req.body.value;
+  const imgData = req.body.dataUrl;
+  if (value)
+    fs.writeFile(path.join(__dirname, "/static/upload", route), value, (err) => {
+      if (err) throw err;
+    });
+  else {
+    const data = imgData.split(',')[1];
+    const buffer = Buffer.from(data, 'base64');
+    console.log(data);
+    fs.writeFileSync(path.join(__dirname, "/static/upload", route), buffer);
+  }
+});
+app.get("/showFile", function (req, res) {
+  const route = req.query.name;
+  console.log(path.join(__dirname, "/static/upload", route));
+  res.sendFile(path.join(__dirname, "/static/upload", route));
+});
+app.listen(PORT, function () {
+  console.log("start serwera na porcie " + PORT);
+});
+users = [{
+  login: 'wow',
+  pass: 'wow'
+}]
+//registering
+app.get("/register", function (req, res) {
+  res.render('register.hbs')
+});
+// app.post("/getUserInfo", function (req, res) {
+//   const data = req.body
+//   console.log(users.findIndex(el => el.login == data.login) !== -1);
+//   if (users.findIndex(el => el.login == data.login) !== -1) {
+//     res.redirect('/error?value=Taki_uzytkownik_istnieje')
+//   } else {
+//     users.push(data)
+//     res.redirect('/login')
+//   }
+//   console.log(users);
+//   // res.render('error.hbs')
 // });
+// app.get('/error', function (req, res) {
+//   const data = req.query.value
+//   console.log(data);
+//   res.render('error.hbs', { message: data })
+// })
+app.get('/handleRegister', function (req, res) {
+  const data = req.query
+  if (users.findIndex(el => el.login == data.login) !== -1) {
+    res.render('error.hbs', { message: 'Takie uzytkownik już istnieje' })
+  } else {
+    users.push(data)
+    res.redirect('/login')
+  }
+  console.log(users);
+
+})

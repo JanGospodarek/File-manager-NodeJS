@@ -1,0 +1,137 @@
+<div class="mainCont">
+  <div class="sidePanel">
+    <button class="sidePanelBtn" id="filtr">filtry</button>
+
+  </div>
+  <div class="centerPanel">
+    <div id="label">{{name}}</div>
+    <div id="contentWrapper">
+      <div id="filters">
+        <p>filtry</p>
+        <div id="filterCont">
+          <div>
+            <p>normal</p>
+            <div
+              class="img none"
+              style="background-image:url('/img/gamut.jpg')"
+            >
+            </div>
+
+          </div>
+          {{#each effects}}
+            <div><p>{{name}}</p>
+              <div
+                class="img {{name}}"
+                style="background-image:url('{{imagePath}}');filter:{{name}}(100%)"
+              >
+              </div>
+            </div>
+
+          {{/each}}
+        </div>
+      </div>
+      <div id="imgCont">
+        <img id="img" src="upload/{{name}}" />
+      </div>
+      <div id="buttonCont">
+        <button class="sidePanelBtn" id="changeName">zmiana nazwy</button>
+        <button class="sidePanelBtn" id="saveFile">zapisz plik</button>
+
+        <a id="viewFile" href="/showFile/?name={{name}}">
+          <button class="sidePanelBtn"> podgląd pliku</button>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+<dialog id="changeNameDialog">
+  <p>Nazwa Pliku</p>
+    <p style="color:rgb(224, 144, 24);font-size:smaller">Nie zapomnij o rozszerzeniu!</p>
+  <form action="/changeName" method="get">
+    <input type="text" name="name" />
+    <input type="text" name="curDir" value={{name}} hidden>
+    <button type="submit">Dodaj</button>
+  </form>
+    <button class="anuluj" id="anulujNowaNazwa">Anuluj</button>
+
+</dialog>
+
+<script>
+    document.getElementById('anulujNowaNazwa').addEventListener('click', (e) => {
+  document.getElementById('changeNameDialog').close() })
+ document.getElementById('changeName').addEventListener('click', (e) => {
+  document.getElementById('changeNameDialog').showModal() })
+
+const btnSave=document.getElementById('saveFile')
+  const btnOpenFiltres=document.getElementById('filtr'); 
+  const filterCont=document.getElementById('filterCont') ;
+  const imgCont=document.getElementById('imgCont')
+  const filtersWrap=document.getElementById('filters') ; 
+  constcontentWrapper=document.getElementById('contentWrapper');
+   const canvas = document.createElement('canvas') ; 
+  imgCont.append(canvas)
+  const context =canvas.getContext('2d'); 
+  const mainImageDiv = document.getElementById("img");
+  contentWrapper.style.gridTemplateColumns='1px auto'; 
+  let open=false;
+  btnOpenFiltres.addEventListener('click',()=>{ 
+    if(!open)
+  {contentWrapper.style.gridTemplateColumns='100px auto'; open=true;} 
+  else
+  {contentWrapper.style.gridTemplateColumns='0px auto'; open=false;} 
+  } )
+
+  document.querySelectorAll('.img').forEach(obj=>obj.addEventListener('click',(e)=>{
+
+  const filterName= Array.from(e.target.classList).slice(-1);
+
+  if(filterName=='none') { document.getElementById('img').style.filter='none'
+        context.clearRect(0,0,canvas.width,canvas.height)
+
+let image = new Image() ;
+  image.src =mainImageDiv.src; 
+  image.onload = function () { 
+    canvas.width = 500;
+  canvas.height = this.height*(500/this.height) ; 
+  console.log(this.width,this.height,context.filter)
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
+  }
+}
+else{
+      document.getElementById('img').style.filter=`${filterName}(100%)` 
+      context.clearRect(0,0,canvas.width,canvas.height)
+
+let image = new Image() ;
+  image.src =mainImageDiv.src; 
+  image.onload = function () { 
+    canvas.width = 500;
+  canvas.height = this.height*(500/this.height) ; 
+            context.filter = `${filterName}(100%)` ; 
+
+  context.drawImage(image, 0, 0, canvas.width, canvas.height);
+  }
+}
+    
+    console.log(context.filter)
+  })); 
+ 
+
+  btnSave.addEventListener('click',()=>{
+    let dataUrl = canvas.toDataURL("image/jpeg")
+
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const route = urlParams.get('name')
+          alert('zapisano')
+const body = JSON.stringify({
+                dataUrl: dataUrl,
+                route:route
+})
+  fetch('/saveFile',{
+	method: 'POST',
+	body: body, 
+	headers: {
+		'Content-type': 'application/json'	}})
+
+})
+</script>

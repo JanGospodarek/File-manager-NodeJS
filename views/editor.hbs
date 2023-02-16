@@ -4,7 +4,9 @@
     <button class="sidePanelBtn" id="color">kolory</button>
     <button class="sidePanelBtn" id="fontM">font-</button>
     <button class="sidePanelBtn" id="save">zapisz ustawienia</button>
+    <button class="sidePanelBtn" id="saveFile">zapisz plik</button>
     <button class="sidePanelBtn" id="changeName">zmiana nazwy</button>
+    <a  id="viewFile" href="/showFile/?name={{name}}"> <button class="sidePanelBtn"> podgląd pliku</button> </a>
 
    
 
@@ -20,14 +22,19 @@
 </div>
 <dialog id="changeNameDialog">
   <p>Nazwa Pliku</p>
-  <form action="/changeFileName" method="get">
+    <p style="color:rgb(224, 144, 24);font-size:smaller">Nie zapomnij o rozszerzeniu!</p>
+  <form action="/changeName" method="get">
     <input type="text" name="name" />
+    <input type="text" name="curDir" value={{name}} hidden>
     <button type="submit">Dodaj</button>
   </form>
+    <button class="anuluj" id="anulujNowaNazwa">Anuluj</button>
 
 </dialog>
 
 <script>
+  document.getElementById('anulujNowaNazwa').addEventListener('click', (e) => {
+  document.getElementById('changeNameDialog').close() })
   document.getElementById('changeName').addEventListener('click', (e) => {
   document.getElementById('changeNameDialog').showModal() })
 const classes={'color-blue':['color-blue-editor','color-blue-line'],'color-violet':['color-violet-editor','color-violet-line'],'color-grey':['color-grey-editor','color-grey-line'],'color-contrast':['color-contrast-editor','color-contrast-line']}
@@ -38,6 +45,8 @@ const btnFontP=document.getElementById('fontP')
 const btnFontM=document.getElementById('fontM')
 const btnColor=document.getElementById('color')
 const btnSave=document.getElementById('save')
+const btnSaveFile=document.getElementById('saveFile')
+const btnViewFile=document.getElementById('viewFile')
 codeEditor.addEventListener('keydown', (e) => {
        let { keyCode } = e;
        let { value, selectionStart, selectionEnd } = codeEditor;
@@ -49,7 +58,7 @@ if (keyCode === 9) {
  });
  let lineCountCache = 0;
  
-function line_counter() {
+function countLines() {
       let lineCount = codeEditor.value.split('\n').length;
       let outarr = new Array();
       if (lineCountCache != lineCount) {
@@ -61,8 +70,10 @@ function line_counter() {
       lineCountCache = lineCount;
 }
 codeEditor.addEventListener('input', () => {
-    line_counter();
+    countLines();
 });
+countLines()
+
 async function getConfig() {
   let res = await fetch('/getConfig');
    const config=await res.json()
@@ -93,6 +104,7 @@ btnFontM.addEventListener('click',()=>{
   fontSize-=1
   rednerCnf()
 })
+
 color.addEventListener('click',()=>{
   let keys = Object.keys(classes);
  let nextIndex = keys.indexOf(theme) +1;
@@ -110,10 +122,29 @@ btnSave.addEventListener('click',()=>{
     theme:theme,
   }
   console.log(exitData)
+          alert('zapisano')
+
   fetch('/saveConfig',{
 	method: 'POST',
 	body: JSON.stringify(exitData), 
 	headers: {
 		'Content-type': 'application/json'	}})
 })
+
+btnSaveFile.addEventListener('click',()=>{
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  const route = urlParams.get('name')
+    const exitData={route:route,value:codeEditor.value}
+          alert('zapisano')
+
+  console.log(exitData)
+  fetch('/saveFile',{
+	method: 'POST',
+	body: JSON.stringify(exitData), 
+	headers: {
+		'Content-type': 'application/json'	}})
+
+})
+
 </script>

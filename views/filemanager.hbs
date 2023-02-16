@@ -35,7 +35,7 @@
       {{#each files}}
         <div class="fileItem">
           {{{renderImg name}}}
-          <a href="/filemanager?name={{curDir}}/{{name}}{{#if isFile}}?editor=true{{/if}}">{{name}}</a>
+          <a href="/filemanager?name={{curDir}}/{{name}}{{#if isFile}}&editor=true{{/if}}">{{name}}</a>
           <form action="/delete" method="get">
             <input type="text" name="name" value="{{name}}" hidden />
             <input type="text" name="type" value="{{type}}" hidden />
@@ -54,33 +54,49 @@
   <form action="/addDir" method="get">
     <input type="text" name="name" />
     <button type="submit">Dodaj</button>
+
   </form>
+        <button class="anuluj" id="anulujNowyFolder">Anuluj</button>
 
 </dialog>
 <dialog id="nowyPlikDialog">
+
   <p>Nazwa pliku</p>
+    <p style="color:rgb(224, 144, 24);font-size:smaller">Nie zapomnij o rozszerzeniu!</p>
+
   <form action="/addFile" method="get">
     <input type="text" name="name" />
     <button type="submit">Dodaj</button>
+
   </form>
+        <button class="anuluj" id="anulujNowyPlik">Anuluj</button>
 
 </dialog>
 <dialog id="zmianaNazwyDialog">
   <p>Zmiana nazwy folderu</p>
-  <form action="/changeDirName" method="get">
+  <form action="/changeName" method="get">
     <input type="text" name="name" />
     <input type="text" name="curDir" value="{{curDir}}" hidden />
     <button type="submit">Zmień</button>
+
   </form>
+    <button class="anuluj" id="anulujNowaNazwa">Anuluj</button>
 
 </dialog>
 <script>
-
+  //Reafoctor with adding handler to class not to seperate buttons!
   document.getElementById('nowyFolder').addEventListener('click', (e) => {
   document.getElementById('nowyFolderDialog').showModal() })
   document.getElementById('nowyPlik').addEventListener('click', (e) => {
   document.getElementById('nowyPlikDialog').showModal() })
   document.getElementById('zmianaNazwy').addEventListener('click', (e) => {
   document.getElementById('zmianaNazwyDialog').showModal() })
+
+    document.getElementById('anulujNowyFolder').addEventListener('click', (e) => {
+  document.getElementById('nowyFolderDialog').close() })
+  document.getElementById('anulujNowyPlik').addEventListener('click', (e) => {
+  document.getElementById('nowyPlikDialog').close() })
+  document.getElementById('anulujNowaNazwa').addEventListener('click', (e) => {
+  document.getElementById('zmianaNazwyDialog').close() })
 
 </script>
