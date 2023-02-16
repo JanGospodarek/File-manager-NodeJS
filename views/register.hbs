@@ -1,6 +1,11 @@
 <div id="wrapper">
-    <a href="/filemanager">
+    <div class="Alist">
+        <a href="/filemanager" class="block" id="file">
         File manager</a>
+         <a href="/login" class="block" id="zar">
+        Zaloguj</a>
+    </div>
+    
     <div id="inpCont">
         <h2>Zarejestruj</h2>
         <form action="/handleRegister" method="get">
@@ -14,6 +19,14 @@
 </div>
 
 <script>
+
+    const cookie=document.getElementById('loginVar').innerText
+    console.log(cookie)
+    if(cookie==''){
+        document.getElementById('file').style.pointerEvents='none'
+        document.getElementById('zar').style.pointerEvents='none'
+    }
+
     const submitBtn = document.getElementById('submitt')
     let login = '', pass = '', pass2 = '';
     login = document.getElementById('login')

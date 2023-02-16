@@ -1,0 +1,26 @@
+<div class="wrapper home">
+<h2>Zalogowany uzytkownik to : {{name}}</h3>
+<div class="Alist">
+     <a href="/filemanager" class="block">
+        File manager</a>
+ <a href="/register" class="block">
+        Zarejestruj</a>
+         <a href="/login" class="block">
+        Zaloguj</a>
+</div>
+
+<p>Zostaniesz wylogowany za:<span id="timer"></span></p>
+</div>
+
+<script>
+    
+        document.querySelector('.nav').style.display = 'none'
+       const timer= document.getElementById('timer')
+        let seconds=10
+                timer.innerText=`${seconds}`;
+
+        let interval=setInterval(()=>{seconds--;
+        timer.innerText=`${seconds}`;
+        if(seconds==0) clearInterval(interval)
+        },1000)
+</script>
