@@ -2,11 +2,14 @@
     <div class="Alist">
 <a href="/filemanager" class="block" id="file">
         File manager</a>
-        
-    <a href="/register" class="block" id="zar">
+         <a href="/home" class="block" id="home">
+        Home</a>
+    <a href="/register" class="block" >
     Zarejestruj</a>
-    </div>
-    
+     <a href="/logout" class="block" id="wyl">
+        Wyloguj</a>
+            </div>
+
     <div id="inpCont">
         <h2>Zaloguj</h2>
         <form action="/handleLogin" method="get">
@@ -17,7 +20,7 @@
 
     </div>
 </div>
-<p style="display: hidden;" id="loginVar">{{cookie}}</p>
+<p style="display: none;" id="loginVar">{{cookie}}</p>
 <script>
   
     {{!-- const submitBtn = document.getElementById('submitt')
@@ -30,6 +33,7 @@
     console.log(cookie)
     if(cookie==''){
         document.getElementById('file').style.pointerEvents='none'
-        document.getElementById('zar').style.pointerEvents='none'
+        document.getElementById('wyl').style.pointerEvents='none'
+        document.getElementById('home').style.pointerEvents='none'
     }
 </script>

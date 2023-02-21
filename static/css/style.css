@@ -421,9 +421,12 @@ dialog>form>button {
   position: absolute;
   top: 50%;
   left: 50%;
-  margin-top: -100px;
-  margin-left: -75px;
-
+   -webkit-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+display: flex;
+align-items: center;
+flex-direction: column;
+justify-content: center;
 }
 
 .wrapper>a {
@@ -441,6 +444,14 @@ dialog>form>button {
   color: black;
   text-decoration: none;
 padding: 6px;
+}
+.wide{
+  width: 120px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-top: -100px;
+  margin-left: -75px;
 }
 .home{
   display: flex;

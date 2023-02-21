@@ -6,9 +6,10 @@ const hbs = require("express-handlebars");
 const formidable = require("formidable");
 const fs = require("fs");
 const cookieparser = require("cookie-parser");
+const nocache=require('nocache')
 app.use(express.static("static"));
 app.use(cookieparser())
-
+app.use(nocache())
 app.set("views", path.join(__dirname, "views"));
 app.engine(
   "hbs",
@@ -378,23 +379,35 @@ app.get("/login", function (req, res) {
 
   res.render("login.hbs",{cookie:req.cookies.login});
 });
-
+let timer=30
+let interval
 app.get("/handleLogin", function (req, res) {
   const data = req.query;
   const index=users.findIndex((el) => el.login == data.login)
   if ( index== -1) {
     res.render("error.hbs", { message: "Taki uzytkownik nie istnieje" });
   } else if(users[index].pass==data.pass) {
-    res.cookie("login", data.login, { httpOnly: true, maxAge: 10 * 1000 }); // testowe 30 sekund
-
-    res.redirect('/home')
+    res.cookie("login", data.login, { httpOnly: true, maxAge: 30 * 1000 }); // testowe 30 sekund
+interval=setInterval(()=>{timer--;
+if(timer==0) clearInterval(interval)},1000)
+    res.redirect(`/home`)
 
   }
 });
 app.get('/home',function(req,res){
   const login=req.cookies.login
-  console.log(login);
+  console.log(req.cookies);
   if(login==undefined) {res.redirect('/login');return;}
-    const data=req.query.name
-  res.render('home.hbs',{name:data});
+    // const data=req.query.name
+    console.log(timer);
+  res.render('home.hbs',{name:login,age:timer});
 })
+
+app.get("/logout", function (req, res) {
+  res.render("logout.hbs",{cookie:req.cookies.login});
+});
+
+app.get("/handleLogOut", function (req, res) {
+  res.clearCookie('login')
+  res.redirect('/login')
+});

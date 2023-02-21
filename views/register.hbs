@@ -1,9 +1,13 @@
-<div id="wrapper">
+<div class="wrapper">
     <div class="Alist">
         <a href="/filemanager" class="block" id="file">
         File manager</a>
-         <a href="/login" class="block" id="zar">
+         <a href="/home" class="block" id="home">
+        Home</a>
+         <a href="/login" class="block" >
         Zaloguj</a>
+         <a href="/logout" class="block" id="wyl">
+        Wyloguj</a>
     </div>
     
     <div id="inpCont">
@@ -16,15 +20,19 @@
         </form>
 
     </div>
+    <p id="loginVar" style="display: none;">{{cookie}}</p>
 </div>
 
 <script>
+    document.querySelector('.nav').style.display = 'none'
 
     const cookie=document.getElementById('loginVar').innerText
     console.log(cookie)
     if(cookie==''){
         document.getElementById('file').style.pointerEvents='none'
-        document.getElementById('zar').style.pointerEvents='none'
+                document.getElementById('wyl').style.pointerEvents='none'
+                document.getElementById('home').style.pointerEvents='none'
+
     }
 
     const submitBtn = document.getElementById('submitt')
@@ -37,7 +45,6 @@
 
 
 
-    document.querySelector('.nav').style.display = 'none'
     pass.addEventListener('change', (e) => {
         passValue = e.target.value
         if (passValue !== pass2Value)
